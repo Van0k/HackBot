@@ -33,14 +33,14 @@ STATES = {
     'STATUS_CHANGE_FINISH': 7,
     'STATUS_CHANGE_REVERT': 8,
     'STATUS_CHANGE_ACTIVATE_PASSWORD': 9,
-    'STATUS_CHANGE_ACTIVATE_LOCATION': 10
 }
 
 MENU_CHOICES = [
     'Search participants by skill',
     'Show Event Schedule',
     'Toggle searchable',
-    'Change participation status'
+    'Change participation status',
+    'My Profile',
 ]
 
 try:
@@ -187,7 +187,7 @@ def main_menu_choice(bot, update):
         return STATES['MAIN_MENU']
 
     if choice == 'Search participants by skill':
-        token = CONFIG_DATA['users'][update.message.from_user['id']]['token']
+        token = CONFIG_DATA['users'][str(update.message.from_user['id'])]['token']
 
         skills = get_skills(token)
         skills_keyboard = [[skill['tag']] for skill in skills]
@@ -197,6 +197,13 @@ def main_menu_choice(bot, update):
 
     if choice == 'Show Event Schedule':
         draw_event_schedule(bot, update)
+        draw_main_menu(bot, update)
+        return STATES['MAIN_MENU']
+
+    if choice == 'My Profile':
+        token = CONFIG_DATA['users'][str(update.message.from_user['id'])]['token']
+        user = get_current_user(token)
+        draw_user_profile(bot, update, user)
         draw_main_menu(bot, update)
         return STATES['MAIN_MENU']
 
@@ -231,14 +238,25 @@ def skill_search(bot, update):
     #chosen_participants
 
 def change_participation_status_activate(bot, update):
+    token = CONFIG_DATA['users'][str(update.message.from_user['id'])]['token']
     choice = update.message.text
-
+    location = update.message.location
     if choice == 'Wi-Fi Password':
         draw_participation_change_activate_password(bot, update)
         return STATES['STATUS_CHANGE_ACTIVATE_PASSWORD']
-    elif choice == 'Location (Mobile only)':
-        draw_participation_change_activate_location(bot, update)
-        return STATES['STATUS_CHANGE_ACTIVATE_LOCATION']
+    elif not choice and location:
+
+        if not check_location(location):
+            draw_location_check_error(bot, update)
+            draw_main_menu(bot, update)
+            return STATES['MAIN_MENU']
+
+        else:
+            change_participation_status_activate(token)
+            draw_activate_successful(bot, update)
+            draw_main_menu(bot, update)
+            return STATES['MAIN_MENU']
+
     elif choice == 'Back':
         draw_main_menu(bot, update)
         return STATES['MAIN_MENU']
@@ -254,25 +272,6 @@ def change_participation_status_activate_password(bot, update):
 
     if not check_password(entered_password):
         draw_password_check_error(bot, update)
-        draw_main_menu(bot, update)
-        return STATES['MAIN_MENU']
-
-    else:
-        change_participation_status_activate(token)
-        draw_activate_successful(bot, update)
-        draw_main_menu(bot, update)
-        return STATES['MAIN_MENU']
-
-def change_participation_status_activate_location(bot, update):
-    token = CONFIG_DATA['users'][str(update.message.from_user['id'])]['token']
-    try:
-        sent_location = update.message.location
-    except:
-        draw_location_send_error(bot, update)
-        return STATES['STATUS_CHANGE_ACTIVATE_LOCATION']
-    print(sent_location)
-    if not check_location(sent_location):
-        draw_location_check_error(bot, update)
         draw_main_menu(bot, update)
         return STATES['MAIN_MENU']
 
@@ -343,9 +342,8 @@ def main():
             STATES['REGISTER_SKILL_SEARCHABLE']: [RegexHandler('^(Yes|No)$', register_skill_searchable)],
             STATES['SKILL_SEARCH']: [RegexHandler('.+', skill_search)],
             STATES['MAIN_MENU']: [RegexHandler('.+', main_menu_choice)],
-            STATES['STATUS_CHANGE_ACTIVATE']: [RegexHandler('.+', change_participation_status_activate)],
+            STATES['STATUS_CHANGE_ACTIVATE']: [MessageHandler(Filters.all, change_participation_status_activate)],
             STATES['STATUS_CHANGE_ACTIVATE_PASSWORD']: [MessageHandler(Filters.text, change_participation_status_activate_password)],
-            STATES['STATUS_CHANGE_ACTIVATE_LOCATION']: [MessageHandler(Filters.location, change_participation_status_activate_location)],
             STATES['STATUS_CHANGE_FINISH']: [RegexHandler('.+', change_participation_status_finish)],
             STATES['STATUS_CHANGE_REVERT']: [RegexHandler('.+', change_participation_status_revert)],
         },
