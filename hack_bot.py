@@ -1,9 +1,7 @@
 import logging
 import sys
-import time
-import json
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Bot
-from telegram.ext import Updater, CommandHandler, ConversationHandler, CallbackQueryHandler, RegexHandler
+from telegram import Bot
+from telegram.ext import Updater, CommandHandler, ConversationHandler, RegexHandler
 
 from backend_utils import *
 from bot_dialog_utils import *
@@ -20,7 +18,7 @@ DEFAULT_CONFIG = 'config/default_config.json'
 TOKEN = "594797323:AAGaXnxv_lMjtMJHun5_4VuVVJnzEZFNA7k"
 SIGNATURE_TOKEN = "493790820:AAHnEH4Hbx41E7CBFULvCIa-MFRMjHchUeU"
 
-MESSAGES_ENDPOINT = 'https://fat-moose-46.localtunnel.me/api/admin/messages'
+MESSAGES_ENDPOINT = 'http://52.233.153.23/api/admin/messages'
 
 STATES = {
     'REGISTER': 0,
@@ -41,7 +39,9 @@ def write_config():
         json.dump(CONFIG_DATA, f)
 
 def start(bot, update, args):
-    print(args)
+    if not args:
+        draw_eventid_error(bot, update)
+        return None
     user = update.message.from_user
     file_id = user.get_profile_photos()['photos'][0][-1]['file_id']
 
@@ -64,23 +64,25 @@ def start(bot, update, args):
 
     if user['id'] not in CONFIG_DATA:
         if not db_user['skills'] or not db_user['email']:
-            CONFIG_DATA['users'][user['id']] = {'status': 'non-registered', 'token': user_token, 'chat_id': update.message.chat.id}
+            CONFIG_DATA['users'][str(user['id'])] = {'status': 'non-registered', 'token': user_token, 'chat_id': update.message.chat.id}
             write_config()
 
             draw_register_button(bot, update)
             return STATES['REGISTER']
         else:
-            CONFIG_DATA['users'][user['id']] = {'status': 'registered', 'token': user_token, 'chat_id': update.message.chat.id}
+            CONFIG_DATA['users'][str(user['id'])] = {'status': 'registered', 'token': user_token, 'chat_id': update.message.chat.id}
             write_config()
 
             update.message.reply_text('Welcome back!')
+            draw_main_menu(bot, update)
             return STATES['MAIN_MENU']
     else:
-        if CONFIG_DATA['users'][user['id']]['status'] == 'non-registered':
+        if CONFIG_DATA['users'][str(user['id'])]['status'] == 'non-registered':
             draw_register_button(bot, update)
             return STATES['REGISTER']
         else:
             update.message.reply_text('Welcome back!')
+            draw_main_menu(bot, update)
             return STATES['MAIN_MENU']
 
 
@@ -122,7 +124,7 @@ def register_skill(bot, update):
     else:
         CONFIG_DATA['users'][update.message.from_user['id']]['status'] = 'registered'
         write_config()
-        #draw_main_menu(bot, update)
+        draw_main_menu(bot, update)
         return STATES['MAIN_MENU']
 
 def register_email(bot, update):
@@ -141,13 +143,8 @@ def register_email(bot, update):
     CONFIG_DATA['users'][update.message.from_user['id']]['status'] = 'registered'
     write_config()
 
-    # draw_main_menu(bot, update)
+    draw_main_menu(bot, update)
     return STATES['MAIN_MENU']
-
-
-
-def help(bot, update):
-    update.message.reply_text("Use /start to test this bot.")
 
 def cancel(bot, update):
     user = update.message.from_user
@@ -158,12 +155,11 @@ def cancel(bot, update):
     return ConversationHandler.END
 
 def error(bot, update, error):
-    """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, error)
 
 
 def main():
-    # Create the Updater and pass it your bot's token.
+
     updater = Updater(TOKEN)
 
     conv_handler = ConversationHandler(
@@ -178,14 +174,11 @@ def main():
     updater.dispatcher.add_handler(conv_handler)
     updater.dispatcher.add_error_handler(error)
 
-    # Start the Bot
     updater.start_polling()
 
     bot = Bot(TOKEN)
     launch_listener(MESSAGES_ENDPOINT, CONFIG_DATA, bot)
 
-    # Run the bot until the user presses Ctrl-C or the process receives SIGINT,
-    # SIGTERM or SIGABRT
     updater.idle()
 
 

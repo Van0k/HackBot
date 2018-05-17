@@ -41,6 +41,5 @@ def apply_for_event(event_id, token):
     r = requests.post(BACKEND_URL + '/events/%s/apply' % event_id, headers={"Authorization": token, "Content-Type": 'application/json'})
     if not r.status_code in [200, 409]:
         raise ValueError
-    print(r.status_code)
-    print(r.text)
+
 
