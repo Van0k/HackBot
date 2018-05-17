@@ -1,5 +1,5 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove
-from telegram.ext import Updater, CommandHandler, ConversationHandler, CallbackQueryHandler
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
+
 
 def draw_register_button(bot, update):
     reply_keyboard = [['OK']]
@@ -39,3 +39,10 @@ def draw_email_prompt(bot, update):
 
 def draw_error_email_prompt(bot, update):
     update.message.reply_text('It seems that this email is taken :(. Please try again.', reply_markup=ReplyKeyboardRemove())
+
+def draw_eventid_error(bot, update):
+    update.message.reply_text('It seems that you haven\'t started from an event. Please use an event link to start.', reply_markup=ReplyKeyboardRemove())
+
+def draw_main_menu(bot, update):
+    reply_keyboard = [['Find participants by skill']]
+    update.message.reply_text('What do you want to do?', reply_markup=ReplyKeyboardMarkup(reply_keyboard))
