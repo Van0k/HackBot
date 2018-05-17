@@ -14,11 +14,9 @@ def get_messages_to_send(endpoint):
     r = requests.get(endpoint + '?eventId=1')
     resp = r.json()
     messages = resp
-    print(messages)
     return messages
 
 def send_messages(messages, config, bot):
-    print(config['users'])
     if messages['messages']:
         currentMessageCount = 0
         for message in messages['messages']:

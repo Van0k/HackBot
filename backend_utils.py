@@ -5,6 +5,7 @@ import json
 
 BACKEND_URL = 'http://52.233.153.23/api'
 
+
 def user_login(data, hash):
     data['hash'] = hash
     r = requests.post(BACKEND_URL + '/login/telegram', json=data)
@@ -40,6 +41,26 @@ def update_current_user(token, data):
 def apply_for_event(event_id, token):
     r = requests.post(BACKEND_URL + '/events/%s/apply' % event_id, headers={"Authorization": token, "Content-Type": 'application/json'})
     if not r.status_code in [200, 409]:
+        print(r.text)
+        print(r.status_code)
         raise ValueError
 
 
+def get_participants(event_id, token):
+    r = requests.get(BACKEND_URL + '/admin/participants/%s' % event_id, headers={"Authorization": token, "Content-Type": 'application/json'})
+    return r.json()
+
+def check_password(password):
+    return False
+
+def check_location(location):
+    return False
+
+def participation_status_activate(token):
+    pass
+
+def participation_status_finish(token):
+    pass
+
+def participation_status_revert(token):
+    pass
