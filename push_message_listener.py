@@ -3,7 +3,7 @@ import requests
 import time
 import os
 
-DELAY = 10
+DELAY = 30
 MESSAGES_TOKEN = os.environ['MESSAGE_TOKEN'] # Token for message endpoints here
 
 def periodic(interval, action, actionargs=()):
@@ -23,12 +23,16 @@ def send_messages(messages, config, bot):
         currentMessageCount = 0
         for message in messages['messages']:
             for receiver in messages['receivers']:
-                chat_id = config['users'][str(receiver)]['chat_id']
-                bot.send_message(chat_id=chat_id, text=message['content'])
+                try:
+                    chat_id = config['users'][str(receiver)]['chat_id']
+                    bot.send_message(chat_id=chat_id, text=message['content'])
+                except:
+                    print('Error on sending: {}'.format(receiver))
                 currentMessageCount += 1
                 if currentMessageCount > 10:
                     time.sleep(1)
                     currentMessageCount = 0
+            time.sleep(1)
         message_numbers = [message['id'] for message in messages['messages']]
         config['latest_msg'] = max(message_numbers)
 
