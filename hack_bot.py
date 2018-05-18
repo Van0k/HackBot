@@ -18,7 +18,7 @@ CONFIG_PATH = 'config/config.json'
 DEFAULT_CONFIG = 'config/default_config.json'
 
 TOKEN = "594797323:AAGaXnxv_lMjtMJHun5_4VuVVJnzEZFNA7k"
-SIGNATURE_TOKEN = "493790820:AAHnEH4Hbx41E7CBFULvCIa-MFRMjHchUeU"
+SIGNATURE_TOKEN = "593557429:AAHzO8NpbHxbmbIP1XKVdgOEY7jsG8CTKoM"
 
 MESSAGES_ENDPOINT = 'http://52.233.153.23/api/admin/messages'
 
@@ -38,8 +38,11 @@ STATES = {
 MENU_CHOICES = [
     'Search participants by skill',
     'Show Event Schedule',
-    'Toggle searchable',
-    'Change participation status',
+    'Searchable On',
+    'Searchable Off',
+    'Check in at the Hackathon',
+    'Finish my participation',
+    'Reactivate my participation',
     'My Profile',
 ]
 
@@ -93,17 +96,20 @@ def start(bot, update, args):
             draw_skill_searchable_question(bot, update)
             return STATES['REGISTER_SKILL_SEARCHABLE']
     else:
+        CONFIG_DATA['users'][str(user['id'])]['token'] = user_token
+        write_config()
         if CONFIG_DATA['users'][str(user['id'])]['status'] == 'non-registered':
             draw_register_button(bot, update)
             return STATES['REGISTER']
         else:
             update.message.reply_text('Welcome back!')
-            draw_main_menu(bot, update)
+            user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(user_token)['id'], user_token)
+            draw_main_menu(bot, update, user_drawing_data)
             return STATES['MAIN_MENU']
 
 
 def register(bot, update):
-    token = CONFIG_DATA['users'][update.message.from_user['id']]['token']
+    token = CONFIG_DATA['users'][str(update.message.from_user['id'])]['token']
 
     skills = get_skills(token)
     skills_keyboard = [[skill['tag']] for skill in skills]
@@ -113,7 +119,7 @@ def register(bot, update):
     return STATES['REGISTER_SKILL']
 
 def register_skill(bot, update):
-    token = CONFIG_DATA['users'][update.message.from_user['id']]['token']
+    token = CONFIG_DATA['users'][str(update.message.from_user['id'])]['token']
 
     skills = get_skills(token)
     skills_reversed = {skill['tag']: skill['id'] for skill in skills}
@@ -156,12 +162,14 @@ def register_skill_searchable(bot, update):
     else:
         CONFIG_DATA['users'][str(update.message.from_user['id'])]['status'] = 'registered'
         write_config()
-        draw_main_menu(bot, update)
+
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
 
 
 def register_email(bot, update):
-    token = CONFIG_DATA['users'][update.message.from_user['id']]['token']
+    token = CONFIG_DATA['users'][str(update.message.from_user['id'])]['token']
     entered_email = update.message.text
 
     db_user = get_current_user(token)
@@ -173,21 +181,26 @@ def register_email(bot, update):
         draw_error_email_prompt(bot, update)
         return STATES['REGISTER_EMAIL']
 
-    CONFIG_DATA['users'][update.message.from_user['id']]['status'] = 'registered'
+    CONFIG_DATA['users'][str(update.message.from_user['id'])]['status'] = 'registered'
     write_config()
 
-    draw_main_menu(bot, update)
+    user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+    draw_main_menu(bot, update, user_drawing_data)
     return STATES['MAIN_MENU']
 
+
 def main_menu_choice(bot, update):
+    token = CONFIG_DATA['users'][str(update.message.from_user['id'])]['token']
+
     choice = update.message.text
     if choice not in MENU_CHOICES:
         draw_main_menu_error(bot, update)
-        draw_main_menu(bot, update)
+
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
 
     if choice == 'Search participants by skill':
-        token = CONFIG_DATA['users'][str(update.message.from_user['id'])]['token']
 
         skills = get_skills(token)
         skills_keyboard = [[skill['tag']] for skill in skills]
@@ -196,18 +209,35 @@ def main_menu_choice(bot, update):
         return STATES['SKILL_SEARCH']
 
     if choice == 'Show Event Schedule':
-        draw_event_schedule(bot, update)
-        draw_main_menu(bot, update)
+        token = CONFIG_DATA['users'][str(update.message.from_user['id'])]['token']
+        event = get_event(EVENT_ID, token)
+        print(event)
+        draw_event_schedule(bot, update, event['schedule'])
+
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        draw_main_menu(bot, update, user_drawing_data)
+        return STATES['MAIN_MENU']
+
+    if choice in ['Searchable On', 'Searchable Off']:
+        token = CONFIG_DATA['users'][str(update.message.from_user['id'])]['token']
+        new_is_searchable = toggle_searchable(EVENT_ID, token)
+        draw_searchable_toggled(bot, update, new_is_searchable)
+
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
 
     if choice == 'My Profile':
         token = CONFIG_DATA['users'][str(update.message.from_user['id'])]['token']
+        print(token)
         user = get_current_user(token)
         draw_user_profile(bot, update, user)
-        draw_main_menu(bot, update)
+
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
 
-    if choice == 'Change participation status':
+    if choice in ['Check in at the Hackathon', 'Finish my participation', 'Reactivate my participation']:
         token = CONFIG_DATA['users'][str(update.message.from_user['id'])]['token']
         db_user = get_current_user(token)
         user_id = db_user['id']
@@ -234,8 +264,17 @@ def skill_search(bot, update):
 
     participants = get_participants(EVENT_ID, token)
     chosen_skill = update.message.text
+    print(chosen_skill)
+    print(participants)
+    chosen_participants = [p for p in participants if p['isSearchable'] and chosen_skill in p['skills']]
 
-    #chosen_participants
+    print(chosen_participants)
+    draw_search_result(bot, update, chosen_skill, chosen_participants)
+
+    user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+    draw_main_menu(bot, update, user_drawing_data)
+    return STATES['MAIN_MENU']
+
 
 def change_participation_status_activate(bot, update):
     token = CONFIG_DATA['users'][str(update.message.from_user['id'])]['token']
@@ -244,21 +283,34 @@ def change_participation_status_activate(bot, update):
     if choice == 'Wi-Fi Password':
         draw_participation_change_activate_password(bot, update)
         return STATES['STATUS_CHANGE_ACTIVATE_PASSWORD']
+
     elif not choice and location:
 
-        if not check_location(location):
+        activation_result = participation_status_activate(token, EVENT_ID, choice, location)
+
+        if activation_result == 'failed':
             draw_location_check_error(bot, update)
-            draw_main_menu(bot, update)
+
+            user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+            draw_main_menu(bot, update, user_drawing_data)
+            return STATES['MAIN_MENU']
+
+        elif activation_result == 'already':
+            draw_already_activated(bot, update)
+
+            user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+            draw_main_menu(bot, update, user_drawing_data)
             return STATES['MAIN_MENU']
 
         else:
-            change_participation_status_activate(token)
             draw_activate_successful(bot, update)
             draw_main_menu(bot, update)
             return STATES['MAIN_MENU']
 
     elif choice == 'Back':
-        draw_main_menu(bot, update)
+
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
     else:
         draw_main_menu_error(bot, update)
@@ -270,51 +322,71 @@ def change_participation_status_activate_password(bot, update):
     token = CONFIG_DATA['users'][str(update.message.from_user['id'])]['token']
     entered_password = update.message.text
 
-    if not check_password(entered_password):
+    activation_result = participation_status_activate(token, EVENT_ID, entered_password, None)
+
+    if activation_result == 'failed':
         draw_password_check_error(bot, update)
-        draw_main_menu(bot, update)
+
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        draw_main_menu(bot, update, user_drawing_data)
+        return STATES['MAIN_MENU']
+
+    elif activation_result == 'already':
+        draw_already_activated(bot, update)
+
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
 
     else:
-        change_participation_status_activate(token)
         draw_activate_successful(bot, update)
-        draw_main_menu(bot, update)
+
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
+
 
 def change_participation_status_finish(bot, update):
     token = CONFIG_DATA['users'][str(update.message.from_user['id'])]['token']
     choice = update.message.text
 
     if choice == 'Ok':
-        participation_status_finish(token)
+        participation_status_finish(EVENT_ID, token)
         draw_finish_successful(bot, update)
-        draw_main_menu(bot, update)
+
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
+
     elif choice == 'Back':
-        draw_main_menu(bot, update)
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
+
     else:
         draw_main_menu_error(bot, update)
         draw_participation_change_finish(bot, update)
         return STATES['STATUS_CHANGE_FINISH']
+
 
 def change_participation_status_revert(bot, update):
     token = CONFIG_DATA['users'][str(update.message.from_user['id'])]['token']
     choice = update.message.text
 
     if choice == 'Ok':
-        participation_status_revert(token)
+        participation_status_revert(EVENT_ID, token)
         draw_revert_successful(bot, update)
-        draw_main_menu(bot, update)
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
     elif choice == 'Back':
-        draw_main_menu(bot, update)
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
     else:
         draw_main_menu_error(bot, update)
         draw_participation_change_finish(bot, update)
         return STATES['STATUS_CHANGE_FINISH']
-
 
 
 def cancel(bot, update):
@@ -324,6 +396,7 @@ def cancel(bot, update):
                               reply_markup=ReplyKeyboardRemove())
 
     return ConversationHandler.END
+
 
 def error(bot, update, error):
     logger.warning('Update "%s" caused error "%s"', update, error)

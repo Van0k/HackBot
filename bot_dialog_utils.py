@@ -63,15 +63,23 @@ def draw_error_email_prompt(bot, update):
 def draw_eventid_error(bot, update):
     update.message.reply_text('It seems that you haven\'t started from an event. Please use an event link to start.', reply_markup=ReplyKeyboardRemove())
 
-def draw_main_menu(bot, update, is_searchable=False, current_status='applied'):
-    reply_keyboard = [['Search participants by skill'],
+def draw_main_menu(bot, update, user_drawing_data):
+    is_searchable = user_drawing_data['isSearchable']
+    status = user_drawing_data['status']
+
+    toggle_search_text = 'Searchable On' if is_searchable else 'Searchable Off'
+
+    if status == 'applied':
+        status_change_text = 'Check In at the Hackathon'
+    elif status == 'activated':
+        status_change_text = 'Finish my participation'
+    else:
+        status_change_text = 'Reactivate my participation'
+
+    reply_keyboard = [['Search participants by skill', toggle_search_text],
                       ['Show Event Schedule'],
-                      ['Toggle searchable'],
-                      ['Change participation status'],
+                      [status_change_text],
                       ['My Profile']]
-    #reply_keyboard = []
-    #reply_keyboard.append(['Search participants by skill'])
-    #reply_keyboard.append(['Show Event Schedule'])
     update.message.reply_text('What do you want to do?', reply_markup=ReplyKeyboardMarkup(reply_keyboard))
 
 def draw_main_menu_error(bot, update):
@@ -86,8 +94,8 @@ def draw_search_skill_buttons(bot, update, skillboard):
                               resize_keyboard=True
                               )
 
-def draw_event_schedule(bot, update):
-    update.message.reply_text('This is the event schedule.',
+def draw_event_schedule(bot, update, schedule):
+    update.message.reply_text(schedule,
                               reply_markup=ReplyKeyboardRemove())
 
 def draw_participation_change_activate(bot, update):
@@ -135,11 +143,15 @@ def draw_location_check_error(bot, update):
                           reply_markup=ReplyKeyboardRemove())
 
 def draw_activate_successful(bot, update):
-    update.message.reply_text('You were successfully activated!',
+    update.message.reply_text('You were successfully activated and earned your first 7 XP! Press \"My Profile\" to see your current stats. Also, you will now receive messages from organizers.',
+                              reply_markup=ReplyKeyboardRemove())
+
+def draw_already_activated(bot, update):
+    update.message.reply_text('You are already activated.',
                               reply_markup=ReplyKeyboardRemove())
 
 def draw_finish_successful(bot, update):
-    update.message.reply_text('You finished your participation.',
+    update.message.reply_text('You finished your participation. You will no longer receive messages from the organizers.',
                               reply_markup=ReplyKeyboardRemove())
 
 def draw_revert_successful(bot, update):
@@ -170,5 +182,21 @@ def draw_user_profile(bot, update, user):
     external_profile_url = 'http://hackathons.space/profile/t/' + user['tgProfileLink'].split('/')[-1]
     inline_keyboard = [[InlineKeyboardButton('Go to profile page', url=external_profile_url)]]
     update.message.reply_text(profile_string, parse_mode='HTML', reply_markup=InlineKeyboardMarkup(inline_keyboard))
-    print(update)
-    print(user)
+
+def draw_searchable_toggled(bot, update, new_is_searchable):
+    if new_is_searchable:
+        update.message.reply_text("Now others can search you by skill.")
+    else:
+        update.message.reply_text("Now others cannot search you by skill.")
+
+def draw_search_result(bot, update, skill, participants):
+    result_string = '<b>{}</b>\n\n'.format(skill)
+    if not participants:
+        result_string += 'Sorry, we haven\'t found anyone :('
+
+    for participant in participants:
+        result_string += '<b>{}</b>\n'.format(participant['username'])
+        result_string += '<b>TG Handle:</b> @{}\n'.format(participant['tgProfileLink'].split('/')[-1])
+        result_string += '<b>XP:</b> {}\n\n'.format(participant['xp'])
+
+    update.message.reply_text(result_string, parse_mode='HTML')
