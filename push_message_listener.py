@@ -1,9 +1,10 @@
 import threading
 import requests
 import time
+import os
 
 DELAY = 10
-MESSAGES_TOKEN = "" # Token for message endpoints here
+MESSAGES_TOKEN = os.environ['MESSAGE_TOKEN'] # Token for message endpoints here
 
 def periodic(interval, action, actionargs=()):
     t = threading.Timer(interval, periodic,

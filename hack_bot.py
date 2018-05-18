@@ -1,5 +1,6 @@
 import logging
 import sys
+import os
 from telegram import Bot
 from telegram.ext import Updater, CommandHandler, ConversationHandler, RegexHandler, MessageHandler, Filters
 
@@ -17,8 +18,8 @@ EVENT_ID = 1
 CONFIG_PATH = 'config/config.json'
 DEFAULT_CONFIG = 'config/default_config.json'
 
-TOKEN = "" # Bot token here
-SIGNATURE_TOKEN = "" # Key for telegram verification signature here
+TOKEN = os.environ['BOT_TOKEN'] # Bot token here
+SIGNATURE_TOKEN = os.environ['SIGNATURE_BOT_TOKEN'] # Key for telegram verification signature here
 
 MESSAGES_ENDPOINT = 'http://52.233.153.23/api/admin/messages'
 
