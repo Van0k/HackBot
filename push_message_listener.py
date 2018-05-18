@@ -5,7 +5,7 @@ import time
 DELAY = 10
 
 def periodic(interval, action, actionargs=()):
-    t =threading.Timer(interval, periodic,
+    t = threading.Timer(interval, periodic,
                       (interval, action, actionargs))
     t.start()
     action(*actionargs)
