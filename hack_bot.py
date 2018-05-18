@@ -17,8 +17,8 @@ EVENT_ID = 1
 CONFIG_PATH = 'config/config.json'
 DEFAULT_CONFIG = 'config/default_config.json'
 
-TOKEN = "594797323:AAGaXnxv_lMjtMJHun5_4VuVVJnzEZFNA7k"
-SIGNATURE_TOKEN = "593557429:AAHzO8NpbHxbmbIP1XKVdgOEY7jsG8CTKoM"
+TOKEN = "" # Bot token here
+SIGNATURE_TOKEN = "" # Key for telegram verification signature here
 
 MESSAGES_ENDPOINT = 'http://52.233.153.23/api/admin/messages'
 
@@ -40,7 +40,7 @@ MENU_CHOICES = [
     'Show Event Schedule',
     'Searchable On',
     'Searchable Off',
-    'Check in at the Hackathon',
+    'Check In at the Hackathon',
     'Finish my participation',
     'Reactivate my participation',
     'My Profile',
@@ -249,7 +249,7 @@ def main_menu_choice(bot, update):
         draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
 
-    if choice in ['Check in at the Hackathon', 'Finish my participation', 'Reactivate my participation']:
+    if choice in ['Check In at the Hackathon', 'Finish my participation', 'Reactivate my participation']:
         token = CONFIG_DATA['users'][str(update.message.from_user['id'])]['token']
         db_user = get_current_user(token)
         user_id = db_user['id']

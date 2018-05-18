@@ -3,6 +3,7 @@ import requests
 import time
 
 DELAY = 10
+MESSAGES_TOKEN = "" # Token for message endpoints here
 
 def periodic(interval, action, actionargs=()):
     t = threading.Timer(interval, periodic,
@@ -11,7 +12,7 @@ def periodic(interval, action, actionargs=()):
     action(*actionargs)
 
 def get_messages_to_send(endpoint):
-    r = requests.get(endpoint + '?eventId=1')
+    r = requests.get(endpoint + '?eventId=1', headers={"Authorization": MESSAGES_TOKEN, "Content-Type": 'application/json'})
     resp = r.json()
     messages = resp
     return messages
