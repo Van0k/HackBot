@@ -156,6 +156,7 @@ def register_skill_searchable(bot, update):
 
     if answer == 'Yes':
         CONFIG_DATA['users'][str(update.message.from_user['id'])]['is_searchable'] = True
+        toggle_searchable(EVENT_ID, token)
     else:
         CONFIG_DATA['users'][str(update.message.from_user['id'])]['is_searchable'] = False
 

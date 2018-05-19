@@ -143,11 +143,11 @@ def draw_location_check_error(bot, update):
                           reply_markup=ReplyKeyboardRemove())
 
 def draw_activate_successful(bot, update):
-    update.message.reply_text('You were successfully activated and earned your first 7 XP! Press \"My Profile\" to see your current stats. Also, you will now receive messages from organizers.',
+    update.message.reply_text('You have successfully checked in and earned your first 7 XP! Press \"My Profile\" to see your current stats. Also, you will now receive messages from organizers.',
                               reply_markup=ReplyKeyboardRemove())
 
 def draw_already_activated(bot, update):
-    update.message.reply_text('You are already activated.',
+    update.message.reply_text('You are already checked in.',
                               reply_markup=ReplyKeyboardRemove())
 
 def draw_finish_successful(bot, update):
@@ -155,7 +155,7 @@ def draw_finish_successful(bot, update):
                               reply_markup=ReplyKeyboardRemove())
 
 def draw_revert_successful(bot, update):
-    update.message.reply_text('You successfully reverted back to \"activated\".',
+    update.message.reply_text('You are checked in back at the hackathon and will receive message from the organizers again!',
                               reply_markup=ReplyKeyboardRemove())
 
 def draw_user_profile(bot, update, user):
@@ -171,10 +171,8 @@ def draw_user_profile(bot, update, user):
     profile_string += '    {} <b>Coins: </b>{}\n\n'.format(EMOJI_COINS, user['stat']['coins'])
     profile_string += '{} <b>Skills:</b>\n'.format(EMOJI_SKILLS)
     for skill in user['skills']:
-        profile_string += '    <b>{} - {} Strength: {} - {} Verified by: {} </b>\n'.format(
+        profile_string += '    <b>{} - {} Verified by: {} </b>\n'.format(
             skill['tag'],
-            EMOJI_SKILL_STRENGTH,
-            skill['strength'],
             EMOJI_SKILL_VERIFIED,
             skill['verified']
         )
