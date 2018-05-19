@@ -55,6 +55,14 @@ def draw_error_skill_prompt(bot, update, skillboard):
                               resize_keyboard=True
                               )
 
+def draw_error_no_skills(bot, update, skillboard):
+    reply_keyboard = skillboard
+    update.message.reply_text('Please choose at least one skill.',
+                              reply_markup=ReplyKeyboardMarkup(reply_keyboard),
+                              one_time_keyboard=True,
+                              resize_keyboard=True
+                              )
+
 def draw_skill_searchable_question(bot, update):
     reply_keyboard = [['Yes'], ['No']]
     update.message.reply_text('Do you agree to appear in searches by skill? Other people may contact you if you have the skill they\'re interested in.',

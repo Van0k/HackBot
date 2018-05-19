@@ -136,8 +136,8 @@ def register_skill(bot, update):
         chosen_skill = re.sub('\W', '', update.message.text)
 
         if chosen_skill not in skills_reversed:
-            draw_error_skill_prompt(bot, update)
-            return STATES['REGISTER']
+            draw_error_skill_prompt(bot, update, skills_keyboard)
+            return STATES['REGISTER_SKILL']
 
         if chosen_skill in current_user_skills:
             db_user['skills'] = [skill for skill in db_user['skills'] if skill['tag'] != chosen_skill]
@@ -152,6 +152,10 @@ def register_skill(bot, update):
         current_user_skills = [skill['tag'] for skill in db_user['skills']]
 
         draw_skill_buttons_with_done(bot, update, skills_keyboard, current_user_skills, chosen_skill, skill_enable)
+        return STATES['REGISTER_SKILL']
+
+    if not current_user_skills:
+        draw_error_no_skills(bot, update, skills_keyboard)
         return STATES['REGISTER_SKILL']
 
     draw_skill_searchable_question(bot, update)
@@ -420,6 +424,7 @@ def change_participation_status_revert(bot, update):
         user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
         draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
+
     elif choice == 'Back':
         user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
         draw_main_menu(bot, update, user_drawing_data)
