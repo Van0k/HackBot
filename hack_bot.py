@@ -1,6 +1,7 @@
 import logging
 import sys
 import os
+import re
 from telegram import Bot
 from telegram.ext import Updater, CommandHandler, ConversationHandler, RegexHandler, MessageHandler, Filters
 
@@ -129,18 +130,28 @@ def register_skill(bot, update):
     skills_keyboard = [[skill['tag']] for skill in skills]
 
     db_user = get_current_user(token)
+    current_user_skills = [skill['tag'] for skill in db_user['skills']]
 
     if update.message.text != 'Done!':
-        chosen_skill = update.message.text
+        chosen_skill = re.sub('\W', '', update.message.text)
 
         if chosen_skill not in skills_reversed:
             draw_error_skill_prompt(bot, update)
             return STATES['REGISTER']
 
-        db_user['skills'].append({"id": skills_reversed[chosen_skill]})
+        if chosen_skill in current_user_skills:
+            db_user['skills'] = [skill for skill in db_user['skills'] if skill['tag'] != chosen_skill]
+            skill_enable = False
+        else:
+            db_user['skills'].append({"id": skills_reversed[chosen_skill]})
+            skill_enable = True
 
         update_current_user(token, db_user)
-        draw_skill_buttons_with_done(bot, update, skills_keyboard)
+
+        db_user = get_current_user(token)
+        current_user_skills = [skill['tag'] for skill in db_user['skills']]
+
+        draw_skill_buttons_with_done(bot, update, skills_keyboard, current_user_skills, chosen_skill, skill_enable)
         return STATES['REGISTER_SKILL']
 
     draw_skill_searchable_question(bot, update)
@@ -458,7 +469,7 @@ def main():
     updater.start_polling()
 
     bot = Bot(TOKEN)
-    launch_listener(MESSAGES_ENDPOINT, CONFIG_DATA, bot)
+    #launch_listener(MESSAGES_ENDPOINT, CONFIG_DATA, bot)
 
     updater.idle()
 

@@ -1,6 +1,7 @@
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
 import emoji
 
+EMOJI_SKILL_CHOSEN = emoji.emojize(':heavy_check_mark:')
 EMOJI_MAIL = emoji.emojize(':e-mail:')
 EMOJI_PHONE = emoji.emojize(':phone:')
 EMOJI_BIO = emoji.emojize(':mortar_board:')
@@ -23,16 +24,21 @@ def draw_register_button(bot, update):
 
 def draw_skill_buttons(bot, update, skillboard):
     reply_keyboard = skillboard
-    update.message.reply_text('Choose your first skill.',
+    update.message.reply_text('Choose one or more skills and press \"Done!\"',
                               reply_markup=ReplyKeyboardMarkup(reply_keyboard),
                               one_time_keyboard=True,
                               resize_keyboard=True
                               )
 
-def draw_skill_buttons_with_done(bot, update, skillboard):
+def draw_skill_buttons_with_done(bot, update, skillboard, current_skills, chosen_skill, skill_enable):
     reply_keyboard = skillboard
     reply_keyboard.append(['Done!'])
-    update.message.reply_text('Choose another skill or press done if you\'re finished.',
+    for skill in reply_keyboard:
+        if skill[0] in current_skills:
+            skill[0] = EMOJI_SKILL_CHOSEN + ' ' + skill[0]
+
+    message_text = 'You\'ve {} skill \"{}\".'.format('chosen' if skill_enable else 'discarded', chosen_skill)
+    update.message.reply_text(message_text,
                               reply_markup=ReplyKeyboardMarkup(reply_keyboard),
                               one_time_keyboard=True,
                               resize_keyboard=True
