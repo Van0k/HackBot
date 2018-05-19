@@ -469,7 +469,7 @@ def main():
     updater.start_polling()
 
     bot = Bot(TOKEN)
-    #launch_listener(MESSAGES_ENDPOINT, CONFIG_DATA, bot)
+    launch_listener(MESSAGES_ENDPOINT, CONFIG_DATA, bot)
 
     updater.idle()
 
