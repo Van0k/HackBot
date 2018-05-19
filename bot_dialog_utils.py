@@ -47,9 +47,13 @@ def draw_skill_buttons_with_done(bot, update, skillboard, current_skills, chosen
                               resize_keyboard=True
                               )
 
-def draw_error_skill_prompt(bot, update, skillboard):
+def draw_error_skill_prompt(bot, update, skillboard, current_skills):
     reply_keyboard = skillboard
-    update.message.reply_text('Sorry, we don\'t know that skill {} Please try again.'.format(EMOJI_ERROR_SADFACE),
+    for skill in reply_keyboard:
+        if skill[0] in current_skills:
+            skill[0] = EMOJI_SKILL_CHOSEN + ' ' + skill[0]
+
+    update.message.reply_text('Sorry, we don\'t know that skill {}.'.format(EMOJI_ERROR_SADFACE),
                               reply_markup=ReplyKeyboardMarkup(reply_keyboard),
                               one_time_keyboard=True,
                               resize_keyboard=True

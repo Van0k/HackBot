@@ -136,7 +136,7 @@ def register_skill(bot, update):
         chosen_skill = re.sub('\W', '', update.message.text)
 
         if chosen_skill not in skills_reversed:
-            draw_error_skill_prompt(bot, update, skills_keyboard)
+            draw_error_skill_prompt(bot, update, skills_keyboard, current_user_skills)
             return STATES['REGISTER_SKILL']
 
         if chosen_skill in current_user_skills:
