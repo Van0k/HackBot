@@ -3,7 +3,7 @@ import requests
 import time
 import os
 
-DELAY = 30
+DELAY = 3
 MESSAGES_TOKEN = os.environ['MESSAGE_TOKEN'] # Token for message endpoints here
 
 def periodic(interval, action, actionargs=()):
@@ -32,7 +32,7 @@ def send_messages(messages, config, bot):
                 if currentMessageCount > 10:
                     time.sleep(1)
                     currentMessageCount = 0
-            time.sleep(1)
+            time.sleep(0.1)
         message_numbers = [message['id'] for message in messages['messages']]
         config['latest_msg'] = max(message_numbers)
 
