@@ -111,7 +111,8 @@ def start(bot, update, args):
                 user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(user_token)['id'], TOKEN)
                 draw_main_menu(bot, update, user_drawing_data)
                 return STATES['MAIN_MENU']
-    except:
+    except Exception as e:
+        logger.error(e)
         draw_universal_error_reply(bot, update)
 
 
@@ -124,7 +125,8 @@ def register(bot, update):
         skills_keyboard = [[skill['tag']] for skill in skills]
 
         draw_skill_buttons(bot, update, skills_keyboard)
-    except:
+    except Exception as e:
+        logger.error(e)
         draw_universal_error_reply(bot, update)
         draw_register_button(bot, update)
         return STATES['REGISTER']
@@ -170,7 +172,8 @@ def register_skill(bot, update):
 
         draw_skill_searchable_question(bot, update)
         return STATES['REGISTER_SKILL_SEARCHABLE']
-    except:
+    except Exception as e:
+        logger.error(e)
         draw_universal_error_reply(bot, update)
         draw_register_button(bot, update)
         return STATES['REGISTER']
@@ -201,7 +204,8 @@ def register_skill_searchable(bot, update):
             user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
             draw_main_menu(bot, update, user_drawing_data)
             return STATES['MAIN_MENU']
-    except:
+    except Exception as e:
+        logger.error(e)
         draw_universal_error_reply(bot, update)
         draw_register_button(bot, update)
         return STATES['REGISTER']
@@ -229,7 +233,8 @@ def register_email(bot, update):
         user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
         draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
-    except:
+    except Exception as e:
+        logger.error(e)
         draw_universal_error_reply(bot, update)
         draw_register_button(bot, update)
         return STATES['REGISTER']
@@ -309,14 +314,15 @@ def main_menu_choice(bot, update):
             elif current_status == 'participated':
                 draw_participation_change_revert(bot, update)
                 return STATES['STATUS_CHANGE_REVERT']
-    except:
+    except Exception as e:
+        logger.error(e)
         draw_universal_error_reply(bot, update)
         try:
             user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
             draw_main_menu(bot, update, user_drawing_data)
             return STATES['MAIN_MENU']
-        except:
-            pass
+        except Exception as e:
+            logger.error(e)
 
 def skill_search(bot, update):
     token = CONFIG_DATA['users'][str(update.message.from_user['id'])]['token']
@@ -333,14 +339,15 @@ def skill_search(bot, update):
         user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
         draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
-    except:
+    except Exception as e:
+        logger.error(e)
         draw_universal_error_reply(bot, update)
         try:
             user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
             draw_main_menu(bot, update, user_drawing_data)
             return STATES['MAIN_MENU']
-        except:
-            pass
+        except Exception as e:
+            logger.error(e)
 
 
 def change_participation_status_activate(bot, update):
@@ -392,14 +399,15 @@ def change_participation_status_activate(bot, update):
             user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
             draw_main_menu(bot, update, user_drawing_data)
             return STATES['MAIN_MENU']
-    except:
+    except Exception as e:
+        logger.error(e)
         draw_universal_error_reply(bot, update)
         try:
             user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
             draw_main_menu(bot, update, user_drawing_data)
             return STATES['MAIN_MENU']
-        except:
-            pass
+        except Exception as e:
+            logger.error(e)
 
 
 def change_participation_status_activate_password(bot, update):
@@ -433,14 +441,16 @@ def change_participation_status_activate_password(bot, update):
             user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
             draw_main_menu(bot, update, user_drawing_data)
             return STATES['MAIN_MENU']
-    except:
+    except Exception as e:
+        logger.error(e)
         draw_universal_error_reply(bot, update)
         try:
             user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
             draw_main_menu(bot, update, user_drawing_data)
             return STATES['MAIN_MENU']
-        except:
-            pass
+        except Exception as e:
+            logger.error(e)
+
 
 def change_participation_status_finish(bot, update):
     token = CONFIG_DATA['users'][str(update.message.from_user['id'])]['token']
@@ -466,14 +476,15 @@ def change_participation_status_finish(bot, update):
             draw_main_menu_error(bot, update)
             draw_participation_change_finish(bot, update)
             return STATES['STATUS_CHANGE_FINISH']
-    except:
+    except Exception as e:
+        logger.error(e)
         draw_universal_error_reply(bot, update)
         try:
             user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
             draw_main_menu(bot, update, user_drawing_data)
             return STATES['MAIN_MENU']
-        except:
-            pass
+        except Exception as e:
+            logger.error(e)
 
 
 def change_participation_status_revert(bot, update):
@@ -499,14 +510,15 @@ def change_participation_status_revert(bot, update):
             draw_main_menu_error(bot, update)
             draw_participation_change_finish(bot, update)
             return STATES['STATUS_CHANGE_FINISH']
-    except:
+    except Exception as e:
+        logger.error(e)
         draw_universal_error_reply(bot, update)
         try:
             user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
             draw_main_menu(bot, update, user_drawing_data)
             return STATES['MAIN_MENU']
-        except:
-            pass
+        except Exception as e:
+            logger.error(e)
 
 def cancel(bot, update):
     user = update.message.from_user
