@@ -220,3 +220,6 @@ def draw_search_result(bot, update, skill, participants):
         result_string += '<b>XP:</b> {}\n\n'.format(participant['xp'])
 
     update.message.reply_text(result_string, parse_mode='HTML')
+
+def draw_universal_error_reply(bot, update):
+    update.message.reply_text('Sorry, something went wrong {} Please write to my creators @peramor or @van0k.'.format(EMOJI_ERROR_SADFACE))
