@@ -133,7 +133,7 @@ def register_skill(bot, update):
     current_user_skills = [skill['tag'] for skill in db_user['skills']]
 
     if update.message.text != 'Done!':
-        chosen_skill = re.sub('\W', '', update.message.text)
+        chosen_skill = re.sub('^\U00002714 ', '', update.message.text)
 
         if chosen_skill not in skills_reversed:
             draw_error_skill_prompt(bot, update, skills_keyboard, current_user_skills)
