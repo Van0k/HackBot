@@ -1,5 +1,6 @@
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
 import emoji
+import re
 
 EMOJI_SKILL_CHOSEN = emoji.emojize(':heavy_check_mark:')
 EMOJI_MAIL = emoji.emojize(':e-mail:')
@@ -215,7 +216,9 @@ def draw_search_result(bot, update, skill, participants):
         result_string += 'Sorry, we haven\'t found anyone :('
 
     for participant in participants:
-        result_string += '<b>{}</b>\n'.format(participant['username'])
+        if participant['tgProfileLink'] == 'null':
+            continue
+        result_string += '<b>{}</b>\n'.format(re.sub(' *null *', '', participant['username']))
         result_string += '<b>TG Handle:</b> @{}\n'.format(participant['tgProfileLink'].split('/')[-1])
         result_string += '<b>XP:</b> {}\n\n'.format(participant['xp'])
 
