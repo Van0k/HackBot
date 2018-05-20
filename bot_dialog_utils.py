@@ -3,8 +3,8 @@ import emoji
 
 EMOJI_SKILL_CHOSEN = emoji.emojize(':heavy_check_mark:')
 EMOJI_MAIL = emoji.emojize(':e-mail:')
-EMOJI_PHONE = emoji.emojize(':phone:')
-EMOJI_BIO = emoji.emojize(':mortar_board:')
+EMOJI_PHONE = '\U0000260E'
+EMOJI_BIO = '\U0001F393'
 EMOJI_STAT = emoji.emojize(':bar_chart:')
 EMOJI_HACK_TOTAL = emoji.emojize(':heavy_check_mark:')
 EMOJI_HACK_WIN = emoji.emojize(':trophy:')
