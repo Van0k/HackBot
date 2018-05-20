@@ -33,8 +33,6 @@ def send_messages(messages, config, bot):
                     time.sleep(1)
                     currentMessageCount = 0
             time.sleep(0.1)
-        message_numbers = [message['id'] for message in messages['messages']]
-        config['latest_msg'] = max(message_numbers)
 
 def get_and_send_messages(endpoint, config, bot):
     messages = get_messages_to_send(endpoint)
