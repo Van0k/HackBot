@@ -107,7 +107,7 @@ def start(bot, update, args):
             return STATES['REGISTER']
         else:
             update.message.reply_text('Welcome back!')
-            user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(user_token)['id'], user_token)
+            user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(user_token)['id'], TOKEN)
             draw_main_menu(bot, update, user_drawing_data)
             return STATES['MAIN_MENU']
 
@@ -184,7 +184,7 @@ def register_skill_searchable(bot, update):
         CONFIG_DATA['users'][str(update.message.from_user['id'])]['status'] = 'registered'
         write_config()
 
-        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
         draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
 
@@ -207,7 +207,7 @@ def register_email(bot, update):
 
     logger.info('User @{} finished registration.'.format(update.message.from_user['username']))
 
-    user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+    user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
     draw_main_menu(bot, update, user_drawing_data)
     return STATES['MAIN_MENU']
 
@@ -221,7 +221,7 @@ def main_menu_choice(bot, update):
 
         logger.info('User @{} made wrong main menu choice: {}.'.format(update.message.from_user['username'], choice))
 
-        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
         draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
 
@@ -240,7 +240,7 @@ def main_menu_choice(bot, update):
 
         logger.info('User @{} displayed the schedule.'.format(update.message.from_user['username']))
 
-        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
         draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
 
@@ -251,7 +251,7 @@ def main_menu_choice(bot, update):
 
         logger.info('User @{} toggled searchable to {}.'.format(update.message.from_user['username'], new_is_searchable))
 
-        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
         draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
 
@@ -262,7 +262,7 @@ def main_menu_choice(bot, update):
 
         logger.info('User @{} displayed their profile.'.format(update.message.from_user['username']))
 
-        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
         draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
 
@@ -271,7 +271,7 @@ def main_menu_choice(bot, update):
         db_user = get_current_user(token)
         user_id = db_user['id']
 
-        participants = get_participants(EVENT_ID, token)
+        participants = get_participants(EVENT_ID, TOKEN)
         current_participant = [p for p in participants if p['id'] == user_id][0]
 
         current_status = current_participant['status']
@@ -291,7 +291,7 @@ def main_menu_choice(bot, update):
 def skill_search(bot, update):
     token = CONFIG_DATA['users'][str(update.message.from_user['id'])]['token']
 
-    participants = get_participants(EVENT_ID, token)
+    participants = get_participants(EVENT_ID, TOKEN)
     chosen_skill = update.message.text
     chosen_participants = [p for p in participants if p['isSearchable'] and chosen_skill in p['skills']]
 
@@ -299,7 +299,7 @@ def skill_search(bot, update):
 
     logger.info('User @{} searched by skill: {}'.format(update.message.from_user['username'], chosen_skill))
 
-    user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+    user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
     draw_main_menu(bot, update, user_drawing_data)
     return STATES['MAIN_MENU']
 
@@ -321,14 +321,14 @@ def change_participation_status_activate(bot, update):
 
             logger.info('User @{} failed to check in by location.'.format(update.message.from_user['username']))
 
-            user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+            user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
             draw_main_menu(bot, update, user_drawing_data)
             return STATES['MAIN_MENU']
 
         elif activation_result == 'already':
             draw_already_activated(bot, update)
 
-            user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+            user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
             draw_main_menu(bot, update, user_drawing_data)
             return STATES['MAIN_MENU']
 
@@ -336,20 +336,20 @@ def change_participation_status_activate(bot, update):
 
             logger.info('User @{} successfully checked in by location.'.format(update.message.from_user['username']))
             draw_activate_successful(bot, update)
-            user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+            user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
             draw_main_menu(bot, update, user_drawing_data)
             return STATES['MAIN_MENU']
 
     elif choice == 'Back':
 
-        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
         draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
 
     else:
 
         draw_main_menu_error(bot, update)
-        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
         draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
 
@@ -365,14 +365,14 @@ def change_participation_status_activate_password(bot, update):
 
         logger.info('User @{} failed to check in by password.'.format(update.message.from_user['username']))
 
-        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
         draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
 
     elif activation_result == 'already':
         draw_already_activated(bot, update)
 
-        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
         draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
 
@@ -381,7 +381,7 @@ def change_participation_status_activate_password(bot, update):
 
         logger.info('User @{} successfully checked in by password.'.format(update.message.from_user['username']))
 
-        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
         draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
 
@@ -396,12 +396,12 @@ def change_participation_status_finish(bot, update):
 
         logger.info('User @{} finished participation.'.format(update.message.from_user['username']))
 
-        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
         draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
 
     elif choice == 'Back':
-        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
         draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
 
@@ -421,12 +421,12 @@ def change_participation_status_revert(bot, update):
 
         logger.info('User @{} reactivated participation.'.format(update.message.from_user['username']))
 
-        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
         draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
 
     elif choice == 'Back':
-        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], token)
+        user_drawing_data = get_participant_admin(EVENT_ID, get_current_user(token)['id'], TOKEN)
         draw_main_menu(bot, update, user_drawing_data)
         return STATES['MAIN_MENU']
     else:
