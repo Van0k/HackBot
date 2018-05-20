@@ -22,6 +22,9 @@ def get_skills(token):
 
 def get_data_hash(data, bot_token):
     bot_token_key = hashlib.sha256(bytes(bot_token, encoding='utf-8')).digest()
+    for key in data:
+        if data[key] is None:
+            data[key] = 'null'
     checkString = '\n'.join(['{}={}'.format(key, data[key]) for key in sorted(data.keys())])
     HMAC_string = hmac.new(bot_token_key, msg=bytes(checkString, encoding='utf-8'), digestmod=hashlib.sha256).hexdigest()
     return HMAC_string
